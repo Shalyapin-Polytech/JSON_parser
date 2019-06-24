@@ -84,7 +84,6 @@ function parse_array()
 end
 
 function parse_string()
-    -- экранирование пока не поддерживается
     local res = ""
 
     if char ~= "\"" then
@@ -93,7 +92,26 @@ function parse_string()
 
     next_char{check_eof = true}
     while char ~= "\"" do
-        res = res .. char
+        if char == "\\" then
+            next_char{check_eof = true, leave_spaces = true}
+            if char == "b" then
+                res = res .. "\b"
+            elseif char == "f" then
+                res = res .. "\f"
+            elseif char == "n" then
+                res = res .. "\n"
+            elseif char == "r" then
+                res = res .. "\r"
+            elseif char == "t" then
+                res = res .. "\t"
+            elseif char == "u" then
+                -- unicode
+            else
+                res = res .. char
+            end
+        else
+            res = res .. char
+        end
         next_char{check_eof = true, leave_spaces = true}
     end
 
