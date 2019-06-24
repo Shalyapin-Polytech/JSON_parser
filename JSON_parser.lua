@@ -1,11 +1,11 @@
 local M, file = {}, {}
 local char = ""
 
-local function next_char()
+local function next_char(leave_spaces)
     char = file:read(1)
     if char == nil then
         error("unexpected end of file")
-    elseif char == " " then
+    elseif not leave_spaces and char == " " then
         next_char()
     end
 end
@@ -93,7 +93,7 @@ function parse_string()
 
     while char ~= "\"" do
         res = res .. char
-        next_char()
+        next_char(true)
     end
 
     return res
