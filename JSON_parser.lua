@@ -136,8 +136,8 @@ function M.parse(file_name)
     if char ~= nil then
         error("trash after main table found")
     end
-    io.close(file)
 
+    io.close(file)
     return res
 end
 
