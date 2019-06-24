@@ -1,12 +1,13 @@
 local M, file = {}, {}
 local char = ""
 
-local function next_char(check_eof, leave_spaces)
+local function next_char(cfg)
+    local check_eof, leave_spaces = cfg.check_eof, cfg.leave_spaces
     char = file:read(1)
     if check_eof and char == nil then
         error("unexpected end of file")
     elseif not leave_spaces and char == " " then
-        next_char(check_eof)
+        next_char{check_eof = check_eof}
     end
 end
 
@@ -34,26 +35,26 @@ function parse_table()
         error("table expected, but found" .. char)
     end
 
-    next_char(true)
+    next_char{check_eof = true}
     while char ~= "}" do
         local key = parse_string()
         if char ~= ":" then
             error("invalid format")
         end
 
-        next_char(true)
+        next_char{check_eof = true}
         local val = parse_obj()
 
         if char ~= "}" and char ~= "," then
             error("unclosed table")
         elseif char == "," then
-            next_char(true)
+            next_char{check_eof = true}
         end
 
         res[key] = val
     end
 
-    next_char(false)
+    next_char{check_eof = false}
     return res
 end
 
@@ -63,7 +64,7 @@ function parse_array()
         error("array expected, but found" .. char)
     end
 
-    next_char(true)
+    next_char{check_eof = true}
     local i = 1
     while char ~= "]" do
         local val = parse_string()
@@ -71,14 +72,14 @@ function parse_array()
         if char ~= "]" and char ~= "," then
             error("unclosed array")
         elseif char == "," then
-            next_char(true)
+            next_char{check_eof = true}
         end
 
         res[i] = val
         i = i + 1
     end
 
-    next_char(false)
+    next_char{check_eof = false}
     return res
 end
 
@@ -90,13 +91,13 @@ function parse_string()
         error("invalid format")
     end
 
-    next_char(true)
+    next_char{check_eof = true}
     while char ~= "\"" do
         res = res .. char
-        next_char(true, true)
+        next_char{check_eof = true, leave_spaces = true}
     end
 
-    next_char(false)
+    next_char{check_eof = false}
     return res
 end
 
@@ -104,7 +105,7 @@ function parse_number()
     local element = ""
     while string.match(char, "^[%d%+%-%.Ee]$") do
         element = element .. char
-        next_char(true)
+        next_char{check_eof = true}
     end
 
     return tonumber(element)
@@ -114,7 +115,7 @@ function parse_keyword()
     local element = ""
     while string.match(char, "^[a-z]$") do
         element = element .. char
-        next_char(true)
+        next_char{check_eof = true}
     end
 
     if element == "true" then
@@ -131,7 +132,7 @@ end
 function M.parse(file_name)
     file = io.open(file_name)
 
-    next_char(true)
+    next_char{check_eof = true}
     local res = parse_table()
     if char ~= nil then
         error("trash after main table found")
