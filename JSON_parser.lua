@@ -6,7 +6,7 @@ local function next_char(cfg)
     char = file:read(1)
     if check_eof and char == nil then
         error("unexpected end of file")
-    elseif not leave_spaces and char == " " then
+    elseif not leave_spaces and string.match(char or "", "^%s$") then
         next_char{check_eof = check_eof}
     end
 end
@@ -60,6 +60,7 @@ end
 
 function parse_array()
     local res = {}
+
     if char ~= "[" then
         error("array expected, but found" .. char)
     end
@@ -87,7 +88,7 @@ function parse_string()
     local res = ""
 
     if char ~= "\"" then
-        error("invalid format")
+        error("string expected, but found" .. char)
     end
 
     next_char{check_eof = true}
