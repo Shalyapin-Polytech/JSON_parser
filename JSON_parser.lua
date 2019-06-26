@@ -66,7 +66,6 @@ function parse_array()
     end
 
     next_char{check_eof = true}
-    local i = 1
     while char ~= "]" do
         local val = parse_string()
 
@@ -76,8 +75,7 @@ function parse_array()
             next_char{check_eof = true}
         end
 
-        res[i] = val
-        i = i + 1
+        res[#res + 1] = val
     end
 
     next_char{check_eof = false}
