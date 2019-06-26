@@ -1,1 +1,8 @@
-{"first" : 1, "second": ["2 a", "2 b"], "bool": null, "number": -12.64E-8, "empty_table": {}, "empty_array": []}
+{
+  "first" : 1,
+  "second": ["2 a", "2 b"],
+  "bool": null,
+  "number": -12.64E-8,
+  "empty_table": {},
+  "empty_array": []
+}
