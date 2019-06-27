@@ -1,6 +1,6 @@
 {
   "first" : 1,
-  "second": ["2 a", "2 b"],
+  "second": ["2 a", "2 \u024Db"],
   "bool": null,
   "number": -12.64E-8,
   "empty_table": {},

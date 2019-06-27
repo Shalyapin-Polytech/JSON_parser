@@ -107,7 +107,12 @@ function parse_string()
             elseif char == "t" then
                 res = res .. "\t"
             elseif char == "u" then
-                -- unicode
+                local utf8_char = ""
+                for i = 1, 4 do
+                    next_char{check_eof = true, leave_spaces = true}
+                    utf8_char = utf8_char .. char
+                end
+                res = res .. utf8.char(tonumber("0x" .. utf8_char))
             else
                 res = res .. char
             end
