@@ -11,7 +11,12 @@ function Collection.implement(type)
             if actual_type == expected_type then
                 rawset(self, k, v)
             else
-                error("incorrect type of key: expected " .. expected_type .. ", but got " .. actual_type)
+                error(
+                    "incorrect type of key: expected " ..
+                    tostring(expected_type) ..
+                    ", but got " ..
+                    tostring(actual_type)
+                )
             end
         end,
 
@@ -28,8 +33,8 @@ function Collection.implement(type)
     }
 
     local constructor = {
-        __call = function ()
-            return setmetatable({}, class)
+        __call = function (self, tbl)
+            return setmetatable(tbl, class)
         end
     }
 

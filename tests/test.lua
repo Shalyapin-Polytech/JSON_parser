@@ -1,13 +1,16 @@
 local JSON_parser = require("JSON_parser")
 local asserts = require("tests.core")
+local Collection = require("Collection")
+local Array = Collection.implement("number")
+local Map = Collection.implement("string")
 
-local expected = {
+local expected = Map{
     ["first"] = 1,
-    ["second"] = {"2 a", "2 b"},
+    ["second"] = Array{"2 a", "2 b"},
     ["bool"] = nil,
     ["number"] = -12.64E-8,
-    ["empty_table"] = {},
-    ["empty_array"] = {}
+    ["empty_table"] = Map{},
+    ["empty_array"] = Array{}
 }
 local result = JSON_parser.parse("tests/test.json")
 

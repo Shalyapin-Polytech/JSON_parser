@@ -32,10 +32,10 @@ function parse_obj()
 end
 
 function parse_table()
-    local res = Map()
+    local res = Map{}
 
     if char ~= "{" then
-        error("table expected, but found " .. char)
+        error("table expected, but found " .. tostring(char))
     end
 
     next_char{check_eof = true}
@@ -62,10 +62,10 @@ function parse_table()
 end
 
 function parse_array()
-    local res = Array()
+    local res = Array{}
 
     if char ~= "[" then
-        error("array expected, but found " .. char)
+        error("array expected, but found " .. tostring(char))
     end
 
     next_char{check_eof = true}
@@ -89,7 +89,7 @@ function parse_string()
     local res = ""
 
     if char ~= "\"" then
-        error("string expected, but found " .. char)
+        error("string expected, but found " .. tostring(char))
     end
 
     next_char{check_eof = true}
