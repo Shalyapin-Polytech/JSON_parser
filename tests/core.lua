@@ -1,7 +1,7 @@
 local M = {}
 
 function mismatch_error(expected, actual)
-    error("expected " .. tostring(expected) .. ", but got " .. tostring(actual))
+    error("expected " .. tostring(expected) .. ", but got " .. tostring(actual), 3)
 end
 
 function M.assert_equals(expected, actual)
@@ -24,6 +24,12 @@ function M.assert_tables_equals(expected, actual)
         else
             M.assert_equals(v, actual[k])
         end
+    end
+end
+
+function M.assert_thrown(f)
+    if pcall(f) then
+        mismatch_error("error", "normal work")
     end
 end
 

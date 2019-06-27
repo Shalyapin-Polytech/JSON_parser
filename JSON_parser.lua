@@ -42,7 +42,7 @@ function parse_table()
     while char ~= "}" do
         local key = parse_string()
         if char ~= ":" then
-            error("invalid format")
+            error("expected :, but got " .. tostring(char))
         end
 
         next_char{check_eof = true}
@@ -52,6 +52,9 @@ function parse_table()
             error("unclosed table")
         elseif char == "," then
             next_char{check_eof = true}
+            if char == "}" then
+                error("trailing comma is not supported")
+            end
         end
 
         res[key] = val
@@ -76,6 +79,9 @@ function parse_array()
             error("unclosed array")
         elseif char == "," then
             next_char{check_eof = true}
+            if char == "]" then
+                error("trailing comma is not supported")
+            end
         end
 
         res[#res + 1] = val
@@ -112,7 +118,11 @@ function parse_string()
                     next_char{check_eof = true, leave_spaces = true}
                     utf8_char = utf8_char .. char
                 end
-                res = res .. utf8.char(tonumber("0x" .. utf8_char))
+                if string.match(utf8_char, "^" .. ("[0-9A-Fa-f]"):rep(4) .. "$") then
+                    res = res .. utf8.char(tonumber("0x" .. utf8_char))
+                else
+                    error("incorrect UTF-8 character code: " .. utf8_char)
+                end
             else
                 res = res .. char
             end
@@ -128,9 +138,9 @@ end
 
 function parse_number()
     local element = ""
-    while string.match(char, "^[%d%+%-%.Ee]$") do
+    while string.match(char or "", "^[%d%+%-%.Ee]$") do
         element = element .. char
-        next_char{check_eof = true}
+        next_char{check_eof = false}
     end
 
     return tonumber(element)
@@ -138,9 +148,9 @@ end
 
 function parse_keyword()
     local element = ""
-    while string.match(char, "^[a-z]$") do
+    while string.match(char or "", "^[a-z]$") do
         element = element .. char
-        next_char{check_eof = true}
+        next_char{check_eof = false}
     end
 
     if element == "true" then
@@ -150,7 +160,7 @@ function parse_keyword()
     elseif element == "null" then
         return nil
     else
-        error("unexpected element")
+        error("unexpected element: " .. element)
     end
 end
 
@@ -158,7 +168,7 @@ function M.parse(file_name)
     file = io.open(file_name)
 
     next_char{check_eof = true}
-    local res = parse_table()
+    local res = parse_obj()
     if char ~= nil then
         error("trash after main table found")
     end
