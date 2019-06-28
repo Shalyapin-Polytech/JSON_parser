@@ -139,7 +139,10 @@ local tests = {
     end,
     
     test_exp = function ()
-        asserts.assert_tables_equals(parse("tests/test_exp.json"), Array{0E0, 0e+1, 0e-0, 0e+0, 123e-589})
+        asserts.assert_tables_equals(
+            parse("tests/test_exp.json"),
+            Array{0E0, 0e+1, 0e-0, 0e+0, 123e-589 }
+        )
     end,
     
     test_incorrect_exp1 = function ()
