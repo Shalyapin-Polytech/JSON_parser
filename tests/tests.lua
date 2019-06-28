@@ -130,6 +130,40 @@ local tests = {
         asserts.assert_thrown(
             function () parse("tests/test_opening_comma.json") end
         )
+    end,
+    
+    test_hex_number = function ()
+        asserts.assert_thrown(
+            function () parse("tests/test_hex_number.json") end
+        )
+    end,
+    
+    test_exp = function ()
+        asserts.assert_tables_equals(parse("tests/test_exp.json"), Array{0E0, 0e+1, 0e-0, 0e+0, 123e-589})
+    end,
+    
+    test_incorrect_exp1 = function ()
+        asserts.assert_thrown(
+            function () parse("tests/test_incorrect_exp1.json") end
+        )
+    end,
+    
+    test_incorrect_exp2 = function ()
+        asserts.assert_thrown(
+            function () parse("tests/test_incorrect_exp2.json") end
+        )
+    end,
+    
+    test_incorrect_exp3 = function ()
+        asserts.assert_thrown(
+            function () parse("tests/test_incorrect_exp3.json") end
+        )
+    end,
+    
+    test_incorrect_exp4 = function ()
+        asserts.assert_thrown(
+            function () parse("tests/test_incorrect_exp4.json") end
+        )
     end
 }
 

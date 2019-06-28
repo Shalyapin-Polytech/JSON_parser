@@ -4,7 +4,7 @@ Collection = {}
 
 function Collection.implement(type)
     local class = {
-        type = type,
+        type = type or "table",
 
         __newindex = function (self, k, v)
             local expected_type, actual_type = type, typeof(k)

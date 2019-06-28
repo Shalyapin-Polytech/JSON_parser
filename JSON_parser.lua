@@ -7,7 +7,8 @@ local char = ""
 local function next_char(cfg)
     local check_eof, leave_spaces = cfg.check_eof, cfg.leave_spaces
     char = file:read(1)
-    assert(not check_eof or char ~= nil, "unexpected end of file")
+    assert(not check_eof or char, "unexpected end of file")
+    
     if not leave_spaces and string.match(char or "", "^%s$") then
         next_char{check_eof = check_eof}
     end
@@ -32,7 +33,6 @@ end
 
 function parse_table()
     local res = Map{}
-
     assert(char == "{", "table expected, but found " .. tostring(char))
 
     next_char{check_eof = true}
@@ -58,7 +58,6 @@ end
 
 function parse_array()
     local res = Array{}
-
     assert(char == "[", "array expected, but found " .. tostring(char))
 
     next_char{check_eof = true}
@@ -80,7 +79,6 @@ end
 
 function parse_string()
     local res = ""
-
     assert(char == "\"", "string expected, but found " .. tostring(char))
 
     next_char{check_eof = true}
@@ -123,13 +121,16 @@ function parse_string()
 end
 
 function parse_number()
-    local element = ""
+    local res = ""
     while string.match(char or "", "^[%d%+%-%.Ee]$") do
-        element = element .. char
+        res = res .. char
         next_char{check_eof = false}
     end
-
-    return tonumber(element)
+    
+    res = tonumber(res)
+    assert(res, "incorrect format of number")
+    
+    return res
 end
 
 function parse_keyword()
