@@ -1,37 +1,42 @@
-local M = {}
+local asserts, tests = {}, {}
 
-function mismatch_error(expected, actual)
-    error("expected " .. tostring(expected) .. ", but got " .. tostring(actual), 3)
+function asserts.assert_equals(expected, actual)
+    assert(expected == actual, "expected " .. tostring(expected) .. ", but got " .. tostring(actual))
 end
 
-function M.assert_equals(expected, actual)
-    if expected ~= actual then
-        mismatch_error(expected, actual)
-    end
-end
-
-function M.assert_tables_equals(expected, actual)
-    local expected_type, actual_type = getmetatable(expected).type, getmetatable(actual).type
-    local expected_size, actual_size = #expected, #actual
-    if expected_type ~= actual_type then
-        mismatch_error(expected_type,  actual_type)
-    elseif expected_size ~= actual_size then
-        mismatch_error(expected_size, actual_size)
-    end
+function asserts.assert_tables_equals(expected, actual)
+    asserts.assert_equals(getmetatable(expected).type, getmetatable(actual).type)
+    asserts.assert_equals(#expected, #actual)
     for k, v in pairs(expected) do
         if type(v) == "table" then
-            M.assert_tables_equals(v, actual[k])
+            asserts.assert_tables_equals(v, actual[k])
         else
-            M.assert_equals(v, actual[k])
+            asserts.assert_equals(v, actual[k])
         end
     end
 end
 
-function M.assert_thrown(f)
-    if pcall(f) then
-        mismatch_error("error", "normal work")
+function asserts.assert_thrown(f)
+    assert(not pcall(f), "expected error")
+end
+
+function tests.do_tests(tests)
+    local not_passed_list = {}
+
+    for k, f in pairs(tests) do
+        local passed, message = pcall(f)
+        if not passed then
+            not_passed_list[#not_passed_list + 1] = "\"" .. tostring(k) .. "\" with message " .. message
+        end
+    end
+
+    if (#not_passed_list > 0) then
+        print(#not_passed_list .. " tests not passed:")
+        print(table.concat(not_passed_list, "\n"))
+    else
+        print("all tests passed")
     end
 end
 
-return M
+return {asserts = asserts, tests = tests}
 

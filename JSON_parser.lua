@@ -7,9 +7,8 @@ local char = ""
 local function next_char(cfg)
     local check_eof, leave_spaces = cfg.check_eof, cfg.leave_spaces
     char = file:read(1)
-    if check_eof and char == nil then
-        error("unexpected end of file")
-    elseif not leave_spaces and string.match(char or "", "^%s$") then
+    assert(not check_eof or char ~= nil, "unexpected end of file")
+    if not leave_spaces and string.match(char or "", "^%s$") then
         next_char{check_eof = check_eof}
     end
 end
@@ -34,27 +33,20 @@ end
 function parse_table()
     local res = Map{}
 
-    if char ~= "{" then
-        error("table expected, but found " .. tostring(char))
-    end
+    assert(char == "{", "table expected, but found " .. tostring(char))
 
     next_char{check_eof = true}
     while char ~= "}" do
         local key = parse_string()
-        if char ~= ":" then
-            error("expected :, but got " .. tostring(char))
-        end
+        assert(char == ":", "expected :, but got " .. tostring(char))
 
         next_char{check_eof = true}
         local val = parse_obj()
 
-        if char ~= "}" and char ~= "," then
-            error("unclosed table")
-        elseif char == "," then
+        assert(char == "}" or char == ",", "unclosed table")
+        if char == "," then
             next_char{check_eof = true}
-            if char == "}" then
-                error("trailing comma is not supported")
-            end
+            assert(char ~= "}", "trailing comma is not supported")
         end
 
         res[key] = val
@@ -67,21 +59,16 @@ end
 function parse_array()
     local res = Array{}
 
-    if char ~= "[" then
-        error("array expected, but found " .. tostring(char))
-    end
+    assert(char == "[", "array expected, but found " .. tostring(char))
 
     next_char{check_eof = true}
     while char ~= "]" do
         local val = parse_obj()
 
-        if char ~= "]" and char ~= "," then
-            error("unclosed array")
-        elseif char == "," then
+        assert(char == "]" or char == ",", "unclosed array")
+        if char == "," then
             next_char{check_eof = true}
-            if char == "]" then
-                error("trailing comma is not supported")
-            end
+            assert(char ~= "]", "trailing comma is not supported")
         end
 
         res[#res + 1] = val
@@ -94,9 +81,7 @@ end
 function parse_string()
     local res = ""
 
-    if char ~= "\"" then
-        error("string expected, but found " .. tostring(char))
-    end
+    assert(char == "\"", "string expected, but found " .. tostring(char))
 
     next_char{check_eof = true}
     while char ~= "\"" do
@@ -118,11 +103,12 @@ function parse_string()
                     next_char{check_eof = true, leave_spaces = true}
                     utf8_char = utf8_char .. char
                 end
-                if string.match(utf8_char, "^" .. ("[0-9A-Fa-f]"):rep(4) .. "$") then
-                    res = res .. utf8.char(tonumber("0x" .. utf8_char))
-                else
-                    error("incorrect UTF-8 character code: " .. utf8_char)
-                end
+                
+                assert(
+                    string.match(utf8_char, "^" .. ("[0-9A-Fa-f]"):rep(4) .. "$"), 
+                    "incorrect UTF-8 character code: " .. utf8_char
+                )
+                res = res .. utf8.char(tonumber("0x" .. utf8_char))
             else
                 res = res .. char
             end
@@ -169,9 +155,7 @@ function M.parse(file_name)
 
     next_char{check_eof = true}
     local res = parse_obj()
-    if char ~= nil then
-        error("trash after main table found")
-    end
+    assert(char == nil, "trash after main table found")
 
     io.close(file)
     return res

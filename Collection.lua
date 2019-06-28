@@ -8,16 +8,15 @@ function Collection.implement(type)
 
         __newindex = function (self, k, v)
             local expected_type, actual_type = type, typeof(k)
-            if actual_type == expected_type then
-                rawset(self, k, v)
-            else
-                error(
-                    "incorrect type of key: expected " ..
+            assert(
+                actual_type == expected_type,
+                "incorrect type of key: expected " ..
                     tostring(expected_type) ..
                     ", but got " ..
                     tostring(actual_type)
-                )
-            end
+            )
+            
+            rawset(self, k, v)
         end,
 
         __len = function (self)

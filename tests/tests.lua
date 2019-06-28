@@ -1,5 +1,6 @@
 local parse = require("JSON_parser").parse
-local asserts = require("tests.core")
+local asserts = require("tests.core").asserts
+local do_tests =  require("tests.core").tests.do_tests
 local Collection = require("Collection")
 local Array = Collection.implement("number")
 local Map = Collection.implement("string")
@@ -132,17 +133,4 @@ local tests = {
     end
 }
 
-local not_passed_list = {}
-
-for k, f in pairs(tests) do
-    if not pcall(f) then
-        not_passed_list[#not_passed_list + 1] = tostring(k)
-    end
-end
-
-if (#not_passed_list > 0) then
-    print(#not_passed_list .. " tests not passed:")
-    print(table.concat(not_passed_list, "\n"))
-else
-    print("all tests passed")
-end
+do_tests(tests)
