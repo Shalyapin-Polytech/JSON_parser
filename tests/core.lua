@@ -5,7 +5,7 @@ function asserts.assert_equals(expected, actual)
 end
 
 function asserts.assert_tables_equals(expected, actual)
-    asserts.assert_equals(getmetatable(expected).type, getmetatable(actual).type)
+    asserts.assert_equals(expected.get_type(), actual.get_type())
     asserts.assert_equals(#expected, #actual)
     for k, v in pairs(expected) do
         if type(v) == "table" then

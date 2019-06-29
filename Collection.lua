@@ -3,8 +3,19 @@ typeof = type
 Collection = {}
 
 function Collection.implement(type)
-    local class = {
-        type = type or "table",
+    local class = {}
+    class = {
+        type = type,
+        
+        get_type = function ()
+            return type
+        end,
+        
+        __index = function (self, k)
+            if typeof(class[k]) == "function" then
+                return class[k]
+            end
+        end,
 
         __newindex = function (self, k, v)
             local expected_type, actual_type = type, typeof(k)

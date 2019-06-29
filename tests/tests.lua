@@ -59,6 +59,28 @@ local tests = {
         asserts.assert_tables_equals(expected, result)
     end,
     
+    test_collection_type = function ()
+        local result = parse("tests/test_normal1.json")
+        
+        asserts.assert_equals("string", result.get_type())
+        asserts.assert_equals("number", result["second"].get_type())
+    end,
+    
+    test_collection_size = function ()
+        local result = parse("tests/test_normal2.json")
+        
+        asserts.assert_equals(2, #result)
+        asserts.assert_equals(5, #result["t1"])
+    end,
+    
+    test_type_filter = function ()
+        local result = parse("tests/test_normal2.json")
+        
+        asserts.assert_thrown(
+            function() result[1] = "bar" end
+        )
+    end,
+    
     test_empty_table = function ()
         local result = parse("tests/test_empty_table.json")
         asserts.assert_tables_equals(Map{}, result)
@@ -141,7 +163,7 @@ local tests = {
     test_exp = function ()
         asserts.assert_tables_equals(
             parse("tests/test_exp.json"),
-            Array{0E0, 0e+1, 0e-0, 0e+0, 123e-589 }
+            Array{0E0, 0e+1, 0e-0, 0e+0, 123e-589}
         )
     end,
     
@@ -167,6 +189,10 @@ local tests = {
         asserts.assert_thrown(
             function () parse("tests/test_incorrect_exp4.json") end
         )
+    end, 
+    
+    test_null = function ()
+        asserts.assert_equals(2, #parse("tests/test_null.json"))
     end
 }
 
