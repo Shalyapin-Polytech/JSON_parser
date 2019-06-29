@@ -98,7 +98,13 @@ local tests = {
     
     test_escape_characters = function ()
         local result = parse("tests/test_escape_characters.json")
-        asserts.assert_equals("a\bcde\fghijklm\nopq\rs\tvwxyz\\\"/", result)
+        asserts.assert_equals("\b\f\n\r\t\\\"/", result)
+    end,
+    
+    test_illegal_escape_characters = function ()
+        asserts.assert_thrown(
+            function () parse("tests/test_illegal_escape_characters.json") end
+        )
     end,
     
     test_correct_utf8 = function ()
@@ -127,6 +133,12 @@ local tests = {
     test_incorrect_key = function ()
         asserts.assert_thrown(
             function () parse("tests/test_incorrect_key.json") end
+        )
+    end,
+    
+    test_repeating_key = function ()
+        asserts.assert_thrown(
+            function () parse("tests/test_repeating_key.json") end
         )
     end,
     

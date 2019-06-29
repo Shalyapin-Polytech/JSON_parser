@@ -38,6 +38,7 @@ function parse_table()
     next_char{check_eof = true}
     while char ~= "}" do
         local key = parse_string()
+        assert(not res[key], "key must be unique")
         assert(char == ":", "expected :, but got " .. tostring(char))
 
         next_char{check_eof = true}
@@ -85,6 +86,8 @@ function parse_string()
     while char ~= "\"" do
         if char == "\\" then
             next_char{check_eof = true, leave_spaces = true}
+            assert(string.match(char, "^[\"\\/bfnrtu]$"), "illegal escape sequence")
+            
             if char == "b" then
                 res = res .. "\b"
             elseif char == "f" then
