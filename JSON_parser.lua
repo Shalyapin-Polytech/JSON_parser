@@ -9,26 +9,23 @@ local function next_char(cfg)
     char = file:read(1)
     assert(not check_eof or char, "unexpected end of file")
     
-    if not leave_spaces and string.match(char or "", "^%s$") then
+    if not leave_spaces and char and char:match("^%s$") then
         next_char{check_eof = check_eof}
     end
 end
 
 function parse_obj()
-    local res
     if char == "{" then
-        res = parse_table()
+        return parse_table()
     elseif char == "[" then
-        res = parse_array()
+        return parse_array()
     elseif char == "\"" then
-        res = parse_string()
-    elseif string.match(char, "^[%d%-]$") then
-        res = parse_number()
+        return parse_string()
+    elseif char:match("^[%d%-]$") then
+        return parse_number()
     else
-        res = parse_keyword()
+        return parse_keyword()
     end
-
-    return res
 end
 
 function parse_table()
@@ -86,7 +83,7 @@ function parse_string()
     while char ~= "\"" do
         if char == "\\" then
             next_char{check_eof = true, leave_spaces = true}
-            assert(string.match(char, "^[\"\\/bfnrtu]$"), "illegal escape sequence")
+            assert(char:match("^[\"\\/bfnrtu]$"), "illegal escape sequence")
             
             if char == "b" then
                 res = res .. "\b"
@@ -106,7 +103,7 @@ function parse_string()
                 end
                 
                 assert(
-                    string.match(utf8_char, "^" .. ("[0-9A-Fa-f]"):rep(4) .. "$"), 
+                    utf8_char:match("^" .. ("[0-9A-Fa-f]"):rep(4) .. "$"), 
                     "incorrect UTF-8 character code: " .. utf8_char
                 )
                 res = res .. utf8.char(tonumber("0x" .. utf8_char))
@@ -125,7 +122,7 @@ end
 
 function parse_number()
     local res = ""
-    while string.match(char or "", "^[%d%+%-%.Ee]$") do
+    while char and char:match("^[%d%+%-%.Ee]$") do
         res = res .. char
         next_char{check_eof = false}
     end
@@ -138,7 +135,7 @@ end
 
 function parse_keyword()
     local element = ""
-    while string.match(char or "", "^[a-z]$") do
+    while char and char:match("^[a-z]$") do
         element = element .. char
         next_char{check_eof = false}
     end
@@ -161,7 +158,7 @@ function M.parse(file_name)
     local res = parse_obj()
     assert(char == nil, "trash after main table found")
 
-    io.close(file)
+    file:close()
     return res
 end
 
